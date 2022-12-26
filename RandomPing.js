@@ -37,7 +37,7 @@ function pingRandom(msg) {
       //manually double for-loop to find the people with the pinging role
       users.forEach(u => {
         u.roles.cache.forEach(role => {
-          if (role.name === "🎲" || role.name === "certified pinger")
+          if (role.name === "🎲")
             usersFiltered.push(u.id);
         });
       });
@@ -64,11 +64,11 @@ client.on('messageCreate', msg => {
       console.log(user + " tried to ping in an invalid channel")
       return;
     }
-    if (msg.member.roles.cache.some(role => role.name === "certified pinger")) {
+    if (msg.member.roles.cache.some(role => role.name === "🎲")) {
       pingRandom(msg);
       console.log(user + " activated ping at " + (new Date()) );
     }
-    else if (user === "Aarfdark" || user === "Bobmcbobber") {
+    else if (user === data.me) {
       pingRandom(msg);
       console.log(user + " activated ping at " + (new Date()) );
     }
