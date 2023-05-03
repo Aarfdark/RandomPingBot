@@ -14,14 +14,28 @@ const client = new Discord.Client({
 //grab login token (and other secret data) from json file
 const data = require('./login_token.json');
 
+function newYearMessage() {
+  client.channels.cache.get(data.grantChan).send("HAPPY NEW YEAR NERDS 🎉🎉");
+  client.channels.cache.get(data.myChan).send("HAPPY NEW YEAR NERDS 🎉🎉");
+  pingRandom();
+}
+
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  //check for new year
+  let curDate = new Date();
+  let newYear = new Date(curDate.getFullYear() + 1, 0);
+  let tilNewYear = Math.abs(newYear - curDate);
+  console.log("time til new year: " + tilNewYear);
+  // setTimeout(newYearMessage, tilNewYear)
 });
 
 //if you don't understand, dm (haha) tushar
 function pingRandom(msg) {
   //0.1% chance to ping everyone
-  if (Math.floor(Math.random()*1000) === 80) {
+  let rand = Math.floor(Math.random()*1000);
+  console.log("rando = " + rand);
+  if (rand === 80) {
     msg.channel.send("@everyone");
     return;
   }
@@ -58,7 +72,7 @@ client.on('messageCreate', msg => {
   let grantChan = client.channels.cache.get(data.grantChan);
 
   //if the message has "@someone" and the user has the "certified pinger" role, call pingRandom
-  if (m.includes('@someone')) {
+  if (m.includes('@someone') /*&& user !== "Mattwoo"*/) {
     //if @someone happens in something that's not my personal server or grant's #spam channel, it doesn't work
     if (msg.channel !== myChan && msg.channel !== grantChan ) {
       console.log(user + " tried to ping in an invalid channel")
@@ -77,6 +91,30 @@ client.on('messageCreate', msg => {
       console.log(user + " FAILED to ping someone cuz they're a LOSER on this date: " + (new Date()));
     }
   }
+
+  else if (m.includes('!inspireme'))
+  {
+    const https = require("https");
+    url = "https://inspirobot.me/api?generateFlow=1"; //api for inspirobot
+    
+    const request = https.request(url, (response) => {
+      let data = '';
+      response.on('data', (chunk) => {
+        data = data + chunk.toString();
+      });
+      
+      response.on('end', () => {
+        const body = JSON.parse(data); //JSON for randomly generated quote
+        msg.channel.send(body.data[1].text.replace(/\[pause \d+\]/, "")); //deletes "pause 1" from text
+      });
+    });
+
+    request.on('error', (error) => {
+      console.log('An error', error);
+    });
+      
+    request.end() 
+  }
   
   //reacting to specific people's messages
   if (user === data.judge) {
@@ -91,15 +129,18 @@ client.on('messageCreate', msg => {
     // msg.react("🇷");
   }
   else if (user === data.biden) {
-    msg.react("🍤");
+    msg.react("🦐");
   } 
   else if (user === data.jrant) {
-    msg.react("🤮");
-    msg.react("👩‍🎤");
+    // msg.react("🤮");
+    // msg.react("<:miku_wave:987754899477524580>");
   }
   else if (user === data.L) {
     msg.react("🍍");
     msg.react("🍕");
+  }
+  else if(user === data.spam) {
+  //   msg.react("🇱");
   }
 });
 
